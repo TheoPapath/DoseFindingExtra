@@ -14,3 +14,5 @@ Imports:
     ggplot2,
     purrr,
     scales
+URL: https://github.com/TheoPapath/DoseFindingExtra
+BugReports: https://github.com/TheoPapath/DoseFindingExtra/issues
