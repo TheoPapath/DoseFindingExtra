@@ -5,11 +5,10 @@
 #'
 #' @param pMods Named list of `Mods` objects with different max effect levels.
 #' @param sigma Standard deviation of the outcome.
-#' @param doses_cmc_1 Numeric vector of dose levels used in the study.
+#' @param doses Numeric vector of dose levels used in the study.
 #' @param delta_grid Vector of Delta values for which target dose estimation will be evaluated.
 #' @param models_to_estimate Character vector of model types to fit (default includes common parametric models).
-#' @param ratio Numeric vector specifying allocation ratio per dose.
-#' @param n_per_arm Sample size per allocation unit.
+#' @param n Sample size. Can be a vector. When a single number is specified for ‘⁠n⁠’ it is assumed this is the sample size per group and balanced allocations are used.
 #' @param go_threshold Minimum meaningful effect (Delta) required to support a "go" decision.
 #' @param separation_threshold Minimum difference used for pairwise posterior probability evaluations.
 #' @param nSim Number of simulation replicates.
@@ -44,7 +43,7 @@
 #' results <- simulate_td_with_power(
 #'   pMods = pMods,
 #'   sigma = 5,
-#'   doses_cmc_1 = doses,
+#'   doses = doses,
 #'   delta_grid = c(0.5, 1, 1.5),
 #'   go_threshold = 1.5,
 #'   separation_threshold = 0.3,
@@ -54,24 +53,23 @@
 simulate_td_with_power <- function(
     pMods,  # <-- NEW: pass Mods() object as argument
     sigma,
-    doses_cmc_1,
+    doses,
     delta_grid,
     models_to_estimate = c("betaMod", "emax", "sigEmax", "linlog"),
-    ratio = c(3, 1, 1, 1, 3),
-    n_per_arm = 450,
-    go_threshold = 1.5,
+    n = 100,
+    go_threshold = 1.0,
     separation_threshold = 0.3,
     nSim = 100
 ) {
   results <- list()
   for (MaxEff_name in names(pMods)) {
     mods <- pMods[[MaxEff_name]]
-    total_n <- n_per_arm * length(ratio)
-    n <- total_n * ratio / sum(ratio)
+    # total_n <- n_per_arm * length(ratio)
+    # n <- total_n * ratio / sum(ratio)
     pObj <- planMod(
-      models_to_estimate, mods, n, sigma, doses = doses_cmc_1,
+      models_to_estimate, mods, n, sigma, doses = doses,
       simulation = TRUE, nSim = nSim, asyApprox = FALSE,
-      bnds = defBnds(max(doses_cmc_1))
+      bnds = defBnds(max(doses))
     )
     altMods <- attr(pObj, "altModels")
     direction <- attr(altMods, "direction")
@@ -102,7 +100,7 @@ simulate_td_with_power <- function(
         na_pct = mean(is.na(est)) * 100,
         .groups = "drop"
       )
-    dose_response_profiles <- DoseFinding:::getSimEst(pObj, type = "dose-response", doseSeq = doses_cmc_1)
+    dose_response_profiles <- DoseFinding:::getSimEst(pObj, type = "dose-response", doseSeq = doses)
     posterior_power <- map_dfr(dose_response_profiles, function(mat) {
       dose_names <- as.numeric(colnames(mat))
       placebo_col <- which.min(dose_names)
