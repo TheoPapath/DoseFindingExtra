@@ -7,30 +7,27 @@
 simulate_td_with_power(
   pMods,
   sigma,
-  doses_cmc_1,
+  doses,
   delta_grid,
-  models_to_estimate = c("betaMod", "emax", "sigEmax", "linlog"),
-  ratio = c(3, 1, 1, 1, 3),
-  n_per_arm = 450,
-  go_threshold = 1.5,
+  models_to_estimate = c("emax", "sigEmax", "linlog"),
+  n = 100,
+  go_threshold = 1,
   separation_threshold = 0.3,
   nSim = 100
 )
 }
 \arguments{
-\item{pMods}{Named list of \code{Mods} objects with different max effect levels.}
+\item{pMods}{A single \code{Mods} object or a named list of \code{Mods} objects with different max effect levels.}
 
 \item{sigma}{Standard deviation of the outcome.}
 
-\item{doses_cmc_1}{Numeric vector of dose levels used in the study.}
+\item{doses}{Numeric vector of dose levels used in the study.}
 
 \item{delta_grid}{Vector of Delta values for which target dose estimation will be evaluated.}
 
 \item{models_to_estimate}{Character vector of model types to fit (default includes common parametric models).}
 
-\item{ratio}{Numeric vector specifying allocation ratio per dose.}
-
-\item{n_per_arm}{Sample size per allocation unit.}
+\item{n}{Sample size. Can be a vector. When a single number is specified for ‘⁠n⁠’ it is assumed this is the sample size per group and balanced allocations are used.}
 
 \item{go_threshold}{Minimum meaningful effect (Delta) required to support a "go" decision.}
 
@@ -41,10 +38,12 @@ simulate_td_with_power(
 \value{
 A list where each entry corresponds to a \code{MaxEff} scenario and contains:
 \itemize{
-\item \code{summary_data}: quantiles of estimated target doses
-\item \code{posterior_power}: summary of power for detecting meaningful differences vs placebo
-\item \code{posterior_power_grand}: matrix of pairwise posterior comparisons across doses
-\item \code{td_summary_formatted}: formatted table of true vs estimated target doses with CIs
+\item \code{target_dose_estimation}: list with \code{data} and a \code{description}
+\item \code{posterior_probabilities}: list with \code{data} and a \code{description}
+\item \code{pairwise_comparisons}: list with \code{data} and a \code{description}
+\item \code{target_dose_summary}: list with \code{table} and a \code{description}
+\item \code{planMod_output}: raw output from planMod()
+\item \code{predictions_df}: matrix of simulated dose-response predictions
 }
 }
 \description{
@@ -55,7 +54,7 @@ under multiple efficacy scenarios defined by varying MaxEff values in a \code{Mo
 doses <- c(0, 5, 40, 80, 160)
 MaxEff_vals <- c(3, 4)
 pMods <- setNames(lapply(MaxEff_vals, function(maxEff) {
-  Mods(
+  DoseFinding::Mods(
     emax = 80,
     sigEmax = c(50, 3.5),
     quadratic = -0.004,
@@ -67,12 +66,12 @@ pMods <- setNames(lapply(MaxEff_vals, function(maxEff) {
 
 results <- simulate_td_with_power(
   pMods = pMods,
-  sigma = 5,
-  doses_cmc_1 = doses,
+  sigma = 0.3,
+  doses = doses,
   delta_grid = c(0.5, 1, 1.5),
   go_threshold = 1.5,
   separation_threshold = 0.3,
   nSim = 100
 )
-results$MaxEff_3$td_summary_formatted
+results$MaxEff_3$target_dose_summary$table
 }
