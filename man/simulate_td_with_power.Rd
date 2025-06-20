@@ -9,7 +9,7 @@ simulate_td_with_power(
   sigma,
   doses,
   delta_grid,
-  models_to_estimate = c("emax", "sigEmax", "linlog"),
+  models_to_estimate = c("emax", "sigEmax"),
   n = 100,
   go_threshold = 1,
   separation_threshold = 0.3,
@@ -44,6 +44,7 @@ A list where each entry corresponds to a \code{MaxEff} scenario and contains:
 \item \code{target_dose_summary}: list with \code{table} and a \code{description}
 \item \code{planMod_output}: raw output from planMod()
 \item \code{predictions_df}: matrix of simulated dose-response predictions
+\item \code{dose_response_quantiles_long}: predictive quantile summaries per simulation
 }
 }
 \description{
