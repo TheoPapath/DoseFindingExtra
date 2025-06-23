@@ -6,7 +6,7 @@
 #'
 #' The function compares predictive quantiles (controlled by `go_prob` and `nogo_prob`)
 #' between the active doses and placebo, and categorizes simulation outcomes into:
-#'   - GO: both lower and upper quantiles exceed thresholds (go_crit and stop_crit)
+#'   - GO: both lower and upper quantiles exceed thresholds (go_crit and nogo_crit)
 #'   - STOP: both are below their respective thresholds
 #'   - Consider: mixed decision boundaries crossed
 #'   - Intermediate: reverse mixed boundary condition
@@ -14,7 +14,7 @@
 #'
 #' @param results A named list from `simulate_td_with_power()` with MaxEff keys and associated outputs.
 #' @param go_crit Numeric. Clinically meaningful threshold for GO decision (e.g., 1.0).
-#' @param stop_crit Numeric. Futility threshold for NO GO decision (e.g., 1.5).
+#' @param nogo_crit Numeric. Futility threshold for NO GO decision (e.g., 1.5).
 #' @param go_prob Numeric between 0 and 1. Lower quantile probability used for GO decision.
 #' @param nogo_prob Numeric between 0 and 1. Upper quantile probability used for STOP decision.
 #' @param doses_to_compare Numeric vector of doses to compare against placebo. Default is the maximum dose.
@@ -44,11 +44,11 @@
 #'   separation_threshold = 0.3,
 #'   nSim = 10
 #' )
-#' plot_go_STOP_outcomes(results, go_crit = 1.0, stop_crit = 1.5)
-plot_go_STOP_outcomes <- function(
+#' plot_go_nogo_outcomes(results, go_crit = 1.0, nogo_crit = 1.5)
+plot_go_nogo_outcomes <- function(
     results,
     go_crit = 3,
-    stop_crit = 2,
+    nogo_crit = 2,
     go_prob = 0.2,
     nogo_prob = 0.9,
     doses_to_compare = NULL,
@@ -115,10 +115,10 @@ plot_go_STOP_outcomes <- function(
       diff20 = !!sym(go_q) - pred20_placebo,
       diff90 = !!sym(nogo_q) - pred90_placebo,
       outcome = case_when(
-        diff20 > go_crit & diff90 > stop_crit ~ "GO",
-        diff20 < go_crit & diff90 < stop_crit ~ "STOP",
-        diff20 < go_crit & diff90 > stop_crit ~ "Consider",
-        diff20 > go_crit & diff90 < stop_crit ~ "Intermediate",
+        diff20 > go_crit & diff90 > nogo_crit ~ "GO",
+        diff20 < go_crit & diff90 < nogo_crit ~ "STOP",
+        diff20 < go_crit & diff90 > nogo_crit ~ "Consider",
+        diff20 > go_crit & diff90 < nogo_crit ~ "Intermediate",
         TRUE ~ "ERROR"
       )
     )
@@ -141,7 +141,8 @@ plot_go_STOP_outcomes <- function(
       x = "Maximum Possible Effect",
       y = "Probability(%)",
       title = "GO/NO GO Outcome Probabilities vs Placebo",
-      caption = "Each bar represents the proportion of simulations classified under each decision category based on predictive quantiles at the evaluated dose."
+      caption = "Each bar represents the proportion of simulations
+      classified under each decision category based on predictive quantiles at the evaluated dose."
     ) +
     geom_hline(yintercept = 0.8) +
     scale_y_continuous(labels = scales::percent_format(), breaks = seq(0,1,.2)) +

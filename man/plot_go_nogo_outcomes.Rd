@@ -8,10 +8,12 @@ plot_go_nogo_outcomes(
   results,
   go_crit = 3,
   nogo_crit = 2,
+  go_prob = 0.2,
+  nogo_prob = 0.9,
   doses_to_compare = NULL,
   bar_width = 0.6,
-  fill_colors = c(GO = "darkgreen", NOGO = "darkred", INCONCLUSIVE = "gold", INTERMEDIATE
-    = "steelblue", ERROR = "gray")
+  fill_colors = c(GO = "darkgreen", STOP = "darkred", Consider = "gold", Intermediate =
+    "steelblue", ERROR = "gray")
 )
 }
 \arguments{
@@ -20,6 +22,10 @@ plot_go_nogo_outcomes(
 \item{go_crit}{Numeric. Clinically meaningful threshold for GO decision (e.g., 1.0).}
 
 \item{nogo_crit}{Numeric. Futility threshold for NO GO decision (e.g., 1.5).}
+
+\item{go_prob}{Numeric between 0 and 1. Lower quantile probability used for GO decision.}
+
+\item{nogo_prob}{Numeric between 0 and 1. Upper quantile probability used for STOP decision.}
 
 \item{doses_to_compare}{Numeric vector of doses to compare against placebo. Default is the maximum dose.}
 
@@ -31,9 +37,20 @@ plot_go_nogo_outcomes(
 A ggplot2 stacked bar plot.
 }
 \description{
-Visualizes GO/NO GO/INCONCLUSIVE outcomes from the simulation results
+Visualizes GO/NO GO/Consider outcomes from the simulation results
 using the difference between each selected dose and placebo. This produces
 a stacked bar plot representing the frequency of each outcome.
+}
+\details{
+The function compares predictive quantiles (controlled by \code{go_prob} and \code{nogo_prob})
+between the active doses and placebo, and categorizes simulation outcomes into:
+\itemize{
+\item GO: both lower and upper quantiles exceed thresholds (go_crit and nogo_crit)
+\item STOP: both are below their respective thresholds
+\item Consider: mixed decision boundaries crossed
+\item Intermediate: reverse mixed boundary condition
+\item ERROR: fallback if none of the above apply
+}
 }
 \examples{
 doses <- c(0, 5, 40, 80, 160)

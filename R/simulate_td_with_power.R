@@ -70,6 +70,17 @@ simulate_td_with_power <- function(
     pMods <- list(SingleScenario = pMods)
   }
 
+  input_arguments <- list(
+    sigma = sigma,
+    doses = doses,
+    delta_grid = delta_grid,
+    models_to_estimate = models_to_estimate,
+    n = n,
+    go_threshold = go_threshold,
+    separation_threshold = separation_threshold,
+    nSim = nSim
+  )
+
   for (MaxEff_name in names(pMods)) {
     # MaxEff_name = "MaxEff_3"
     mods <- pMods[[MaxEff_name]]
@@ -214,12 +225,12 @@ simulate_td_with_power <- function(
           from_dose = dose_names[comp_from],
           to_dose = dose_names[comp_to],
           contrast = paste0(from_dose, " vs ", to_dose),
-          prob_A_gt_B = purrr::map2_dbl(comp_from, comp_to, ~ mean(mat[, .x] > mat[, .y])),
-          prob_A_gt_B_threshold = purrr::map2_dbl(comp_from, comp_to, ~ mean((mat[, .x] - mat[, .y]) > separation_threshold)),
-          prob_diff_gt_threshold = purrr::map2_dbl(comp_from, comp_to, ~ mean(abs(mat[, .x] - mat[, .y]) > separation_threshold))
+          prob_top_gt_placebo = purrr::map2_dbl(comp_from, comp_to, ~ mean(mat[, .x] > mat[, .y])),
+          prob_top_gt_placebo_threshold = purrr::map2_dbl(comp_from, comp_to, ~ mean((mat[, .x] - mat[, .y]) > go_threshold)),
+          prob_top_diff_placebo_threshold = purrr::map2_dbl(comp_from, comp_to, ~ mean(abs(mat[, .x] - mat[, .y]) > separation_threshold))
         )
       comparisons |>
-        dplyr::select(contrast, from_dose, to_dose, prob_A_gt_B, prob_A_gt_B_threshold, prob_diff_gt_threshold)
+        dplyr::select(contrast, from_dose, to_dose, prob_top_gt_placebo, prob_top_gt_placebo_threshold, prob_top_diff_placebo_threshold)
     }, .id = "model")
 
     est_td_data <- DoseFinding:::getSimEst(pObj, "TD", Delta = go_threshold, direction = direction)
@@ -277,7 +288,8 @@ simulate_td_with_power <- function(
       predictions_df_var = list(
         data = dose_response_quantiles_long,
         description = "Predictive quantile summaries of simulated dose-response profiles across models. Each entry contains per-simulation quantiles (e.g., 5%, 10%, ..., 95%) for every dose and fitted model. This allows uncertainty characterization around predicted mean responses."
-      )
+      ),
+      input_arguments = input_arguments
     )
   }
   class(results) <- "td_power_simulation"

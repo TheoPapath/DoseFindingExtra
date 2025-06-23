@@ -7,7 +7,8 @@
 plot_posterior_power_summary(
   results,
   power_threshold = 0.8,
-  effect_threshold = NULL,
+  go_threshold = NULL,
+  separation_threshold = NULL,
   metric = "prob_top_gt_placebo",
   digits = 1,
   show_smooth = FALSE,
@@ -23,9 +24,7 @@ plot_posterior_power_summary(
 
 \item{power_threshold}{Probability threshold (e.g., 0.8) to display reference line.}
 
-\item{effect_threshold}{Effect threshold used in power calculation (included for plot annotation).}
-
-\item{metric}{Character. One of: "prob_top_gt_placebo", "prob_top_gt_placebo_threshold", "prob_top_diff_placebo_threshold".}
+\item{metric}{Character. One of: "prob_top_gt_placebo", "prob_top_gt_placebo_threshold", "prob_top_diff_placebo_threshold", or "all".}
 
 \item{digits}{Integer. Number of digits for display in y-axis.}
 
@@ -40,6 +39,8 @@ plot_posterior_power_summary(
 \item{color_palette}{Optional named vector of colors to apply to models.}
 
 \item{return_data}{Logical. If TRUE, returns both the plot and the data as a list.}
+
+\item{effect_threshold}{Effect threshold used in power calculation (included for plot annotation). If NULL, will extract from input_arguments in \code{results}.}
 }
 \value{
 A ggplot object (or list with plot and data if return_data = TRUE).
