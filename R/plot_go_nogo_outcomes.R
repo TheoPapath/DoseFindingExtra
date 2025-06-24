@@ -51,7 +51,7 @@ plot_go_nogo_outcomes <- function(
     nogo_crit = 2,
     go_prob = 0.2,
     nogo_prob = 0.9,
-    doses_to_compare = NULL,
+    doses_to_compare = c(80,160),
     bar_width = 0.6,
     fill_colors = c(
       GO = "darkgreen",
@@ -85,6 +85,10 @@ plot_go_nogo_outcomes <- function(
         )
     })
   })
+
+  if (any(predictions_df$model == "averaged")) {
+    predictions_df <- predictions_df |> dplyr::filter(model == "averaged")
+  }
 
   if (nrow(predictions_df) == 0) {
     stop("No simulation quantile data found in input.")
@@ -126,8 +130,9 @@ plot_go_nogo_outcomes <- function(
   # Count occurrences per outcome for stacked bar plot
   summary_df <- outcome_df %>%
     mutate(outcome = factor(outcome, levels = c("STOP", "Consider", "Intermediate", "GO", "ERROR"))) %>%
-    count(model, MaxEff, dose, outcome, name = "count") %>%
-    group_by(model, MaxEff, dose) %>%
+    mutate(dose_label = factor(paste0("Dose: ", dose), levels = paste0("Dose: ", sort(unique(dose))))) |>
+    count(model, MaxEff, dose, dose_label, outcome, name = "count") %>%
+    group_by(model, MaxEff, dose, dose_label) %>%
     mutate(pct = count / sum(count)) %>%
     ungroup()
 
@@ -135,7 +140,7 @@ plot_go_nogo_outcomes <- function(
     geom_bar(stat = "identity", position = "stack", width = bar_width) +
     geom_text(aes(label = scales::percent(pct, accuracy = 1)),
               position = position_stack(vjust = 0.5), size = 3, color = "black") +
-    facet_wrap(~ paste0("Dose: ", dose), scales = "free_y") +
+    facet_wrap(~ dose_label, scales = "free_y") +
     scale_fill_manual(values = fill_colors, name = "Decision") +
     labs(
       x = "Maximum Possible Effect",

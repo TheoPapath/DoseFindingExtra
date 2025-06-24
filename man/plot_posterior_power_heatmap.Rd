@@ -5,8 +5,9 @@
 \title{Plot Posterior Power Comparison Heatmap}
 \usage{
 plot_posterior_power_heatmap(
-  posterior_power_grand,
-  metric = "prob_A_gt_B",
+  results,
+  maxeff,
+  metric = "prob_top_gt_placebo_threshold",
   midpoint = 0.5,
   title = NULL,
   digits = 2,
@@ -17,14 +18,15 @@ plot_posterior_power_heatmap(
 )
 }
 \arguments{
-\item{posterior_power_grand}{A data frame with posterior power comparisons including columns:
-\code{model}, \code{from_dose}, \code{to_dose}, and the comparison metrics.}
+\item{results}{A list object returned by \code{simulate_td_with_power()}.}
+
+\item{maxeff}{The value of the MaxEff scenario to visualize (e.g., maxeff=3 for "MaxEff_3").}
 
 \item{metric}{Character. Which metric to plot. Must be one of:
 \itemize{
-\item "prob_A_gt_B": Probability that A > B
-\item "prob_A_gt_B_threshold": Probability that A > B by at least the separation threshold
-\item "prob_diff_gt_threshold": Probability that |A - B| > separation threshold
+\item "prob_top_gt_placebo_threshold": Probability that top dose > placebo + threshold
+\item "prob_top_diff_placebo_threshold": Probability that |top - placebo| > threshold
+\item "all": Plot both metrics in facets.
 }}
 
 \item{midpoint}{Midpoint value for the heatmap gradient. Default is 0.5.}
@@ -46,8 +48,8 @@ A ggplot2 object.
 }
 \description{
 This function visualizes pairwise posterior comparison probabilities from the
-\code{posterior_power_grand} object returned by \code{simulate_td_with_power()}.
+\code{simulate_td_with_power()} output.
 }
 \examples{
-plot_posterior_power_heatmap(results$MaxEff_3$posterior_power_grand, metric = "prob_A_gt_B")
+plot_posterior_power_heatmap(results, maxeff = 3, metric = "prob_top_gt_placebo_threshold")
 }

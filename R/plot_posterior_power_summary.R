@@ -81,7 +81,8 @@ plot_posterior_power_summary <- function(
     p <- ggplot(posterior_power_long, aes(x = MaxEff, y = value)) +
       geom_line(aes(group = model, color = model), size = line_size) +
       geom_point(aes(color = model), size = point_size) +
-      facet_grid(metric_label ~ model, scales = "free_y") +
+      # facet_grid(metric_label ~ model, scales = "free_y") +
+      facet_wrap( ~ metric_label, scales = "free_y", ncol = 2) +
       geom_hline(yintercept = power_threshold, linetype = "dashed", color = "gray40") +
       scale_x_continuous(breaks = scales::pretty_breaks()) +
       scale_y_continuous(labels = scales::percent_format(accuracy = digits)) +
@@ -101,7 +102,7 @@ plot_posterior_power_summary <- function(
     p <- ggplot(posterior_power, aes(x = MaxEff, y = .data[[metric]])) +
       geom_line(aes(group = model, color = model), size = line_size) +
       geom_point(aes(color = model), size = point_size) +
-      facet_wrap(~ model) +
+      # facet_wrap(~ model) +
       geom_hline(yintercept = power_threshold, linetype = "dashed", color = "gray40") +
       scale_x_continuous(breaks = scales::pretty_breaks()) +
       scale_y_continuous(labels = scales::percent_format(accuracy = digits)) +
